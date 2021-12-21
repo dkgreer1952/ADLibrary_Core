@@ -6,6 +6,8 @@ using System.Collections.Specialized;
 using System.Collections;
 
 namespace ADLibrary_Core;
+#pragma warning disable IDE0017 // Simplify object initialization
+#pragma warning disable CS8603 // Possible null reference return.
 
 public class GroupInfo
 {
