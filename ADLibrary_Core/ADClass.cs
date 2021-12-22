@@ -6,48 +6,48 @@ using System.Collections.Specialized;
 using System.Collections;
 
 namespace ADLibrary_Core;
-#pragma warning disable IDE0017 // Simplify object initialization
-#pragma warning disable CS8603 // Possible null reference return.
 
 public class GroupInfo
 {
-    public string? GroupName { get; set; }
-    public string? GroupDescription { get; set; }
+    public string GroupName { get; set; }
+    public string GroupDescription { get; set; }
 }
 public class UserInfo
 {
-    public string? UserID { get; set; }
-    public string? FullName { get; set; }
-    public string? Description { get; set; }
+    public string UserID { get; set; }
+    public string FullName { get; set; }
+    public string Description { get; set; }
 };
 public class UserDetails
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? MiddleInitial { get; set; }
-    public string? DisplayName { get; set; }
-    public string? Descripton { get; set; }
-    public string? StreetAddress { get; set; }
-    public string? City { get; set; }
-    public string? State { get; set; }
-    public string? ZipCode { get; set; }
-    public string? HomePhone { get; set; }
-    public string? Mobile { get; set; }
-    public string? EmailAddress { get; set; }
-    public string? WebSite { get; set; }
-    public string? LastLogon { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string MiddleInitial { get; set; }
+    public string DisplayName { get; set; }
+    public string Descripton { get; set; }
+    public string StreetAddress { get; set; }
+    public string City { get; set; }
+    public string State { get; set; }
+    public string ZipCode { get; set; }
+    public string HomePhone { get; set; }
+    public string Mobile { get; set; }
+    public string EmailAddress { get; set; }
+    public string WebSite { get; set; }
+    public string LastLogon { get; set; }
 };
 public class SvcAcctInfo
 {
-    public string? AcctName { get; set; }
-    public string? Description { get; set; }
-    public string? DisplayName { get; set; }
+    public string AcctName { get; set; }
+    public string Description { get; set; }
+    public string DisplayName { get; set; }
 };
 
 public class ADClass
 {
     [DirectoryRdnPrefix("CN")]
     [DirectoryObjectClass("user")]
+
+#pragma warning disable IDE0017 // Simplify object initialization
 
     private class UserPrincipalEx : UserPrincipal
     {
@@ -119,10 +119,8 @@ public class ADClass
                     var lastLogonDate = ExtensionGet("lastLogon")[0];
                     var lastLogonDateType = lastLogonDate.GetType();
 
-#pragma warning disable CS8605 // Unboxing a possibly null value.
                     var highPart = (Int32)lastLogonDateType.InvokeMember("HighPart", BindingFlags.GetProperty, null, lastLogonDate, null);
                     var lowPart = (Int32)lastLogonDateType.InvokeMember("LowPart", BindingFlags.GetProperty | BindingFlags.Public, null, lastLogonDate, null);
-#pragma warning restore CS8605 // Unboxing a possibly null value.
 
                     var longDate = ((Int64)highPart << 32 | (UInt32)lowPart);
 
@@ -319,11 +317,9 @@ public class ADClass
         for (int i = 0; i < GroupNameColl.Count; i++)
         {
             Groups[i] = new GroupInfo();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Groups[i].GroupName = GroupNameColl[i].ToString();
             if (GroupDescriptionColl[i].ToString() != "NONE")
                 Groups[i].GroupDescription = GroupDescriptionColl[i].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         return Groups;
@@ -373,8 +369,6 @@ public class ADClass
 
             foreach (SearchResult result in results)
             {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-
                 UserIDColl.Add(result.Properties["samaccountname"][0].ToString()); //UserID
 
                 if (result.Properties["displayName"].Count > 0)
@@ -401,9 +395,6 @@ public class ADClass
                 }
                 else
                     DescriptionColl.Add("");
-
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
             }
 
 
@@ -414,19 +405,13 @@ public class ADClass
 
         for (int i = 0; i < UserIDColl.Count; i++)
         {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Users[i] = new UserInfo();
             Users[i].UserID = UserIDColl[i].ToString();
             Users[i].FullName = UserNameColl[i].ToString();
             Users[i].Description = DescriptionColl[i].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
         }
 
-
         return Users;
-
-
     }
 
     public static GroupInfo[] GetGroupsForUser(string UserID, string Domain = "")
@@ -443,9 +428,7 @@ public class ADClass
 
         UserPrincipalEx UserEx = UserPrincipalEx.FindByIdentity(ctx, IdentityType.SamAccountName, UserID);
 
-#pragma warning disable CS8629 // Nullable value type may be null.
         if ((bool)UserEx.Enabled)
-#pragma warning restore CS8629 // Nullable value type may be null.
         {
             DirectoryEntry domainConnection = new(); // Use this to query the default domain
                                                                     //DirectoryEntry domainConnection = new DirectoryEntry("LDAP://example.com", "username", "password"); // Use this to query a remote domain
@@ -455,12 +438,7 @@ public class ADClass
             samSearcher.SearchRoot = domainConnection;
             samSearcher.Filter = "(samAccountName=" + UserEx.accountName + ")";
             samSearcher.PropertiesToLoad.Add("displayName");
-
-
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             SearchResult samResult = samSearcher.FindOne();
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
             if (samResult != null)
             {
                 DirectoryEntry theUser = samResult.GetDirectoryEntry();
@@ -479,15 +457,9 @@ public class ADClass
                     sidSearcher.PropertiesToLoad.Add("distinguishedName");
                     sidSearcher.PropertiesToLoad.Add("name");
                     sidSearcher.PropertiesToLoad.Add("description");
-
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     SearchResult sidResult = sidSearcher.FindOne();
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
-
                     if (sidResult != null)
                     {
-#pragma warning disable CS8604 // Possible null reference argument.
                         if (!groupNameMap.ContainsKey(sidResult.Properties["name"][0].ToString())) //Hedge against dups
                         {
                             groupNameMap[sidResult.Properties["name"][0].ToString()] = groupIdx++;
@@ -497,8 +469,7 @@ public class ADClass
                             else
                                 GroupDescriptionColl.Add("NONE");
                         }
- #pragma warning restore CS8604 // Possible null reference argument.
-                   }
+                    }
                 }
 
                 Groups = new GroupInfo[groupNameMap.Count];
@@ -509,14 +480,8 @@ public class ADClass
                 {
                     Groups[j] = new GroupInfo();
                     Groups[j].GroupName = groupName.Key.ToString();
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8605 // Unboxing a possibly null value.
                     if (GroupDescriptionColl[(int)groupName.Value].ToString() != "NONE")
-#pragma warning restore CS8605 // Unboxing a possibly null value.
                         Groups[j].GroupDescription = GroupDescriptionColl[(int)groupName.Value].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
                     j++;
                 }
 
@@ -563,10 +528,7 @@ public class ADClass
         PrincipalContext ctx = new(ContextType.Domain, Domain.GetCurrentDomain().ToString());
 
         UserPrincipalEx UserEx = UserPrincipalEx.FindByIdentity(ctx, IdentityType.SamAccountName, UserID);
-
-#pragma warning disable CS8629 // Nullable value type may be null.
         if (UserEx != null && (bool)UserEx.Enabled)
-#pragma warning restore CS8629 // Nullable value type may be null.
         {
             userDetails.LastName = UserEx.Surname;
             userDetails.FirstName = UserEx.GivenName;
@@ -637,7 +599,6 @@ public class ADClass
             {
                 UserIDColl.Add(result.Properties["samaccountname"][0].ToString()); //UserID
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 if (result.Properties["displayName"].Count > 0)
                 {
@@ -658,8 +619,6 @@ public class ADClass
                 UserNameColl.Add(fullName);
 
             }
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
 
             resultsColl.Dispose();
         }
@@ -669,10 +628,8 @@ public class ADClass
         for (int i = 0; i < UserIDColl.Count; i++)
         {
             Users[i] = new UserInfo();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Users[i].UserID = UserIDColl[i].ToString();
             Users[i].FullName = UserNameColl[i].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
 
@@ -737,10 +694,7 @@ public class ADClass
 
             foreach (SearchResult result in results)
             {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 userID = result.Properties["samaccountname"][0].ToString();
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
                 UserPrincipal userPrincipal = new(pCtx);
 
                 userPrincipal.SamAccountName = userID;
@@ -755,17 +709,12 @@ public class ADClass
 
                 if (userPrincipal != null)
                     bIsLocked = userPrincipal.IsAccountLockedOut();
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 userPrincipal.Dispose();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
                 if (bIsLocked)
                 {
 
                     UserIDColl.Add(userID); //UserID
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
                     if (result.Properties["displayName"].Count > 0)
                     {
@@ -782,7 +731,6 @@ public class ADClass
 
                         fullName = firstName + " " + lastName;
                     }
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                     UserNameColl.Add(fullName);
                 }
@@ -798,10 +746,8 @@ public class ADClass
         for (int i = 0; i < UserIDColl.Count; i++)
         {
             Users[i] = new UserInfo();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Users[i].UserID = UserIDColl[i].ToString();
             Users[i].FullName = UserNameColl[i].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
 
@@ -862,7 +808,6 @@ public class ADClass
 
                 UserIDColl.Add(result.Properties["samaccountname"][0].ToString()); //UserID
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 if (result.Properties["displayName"].Count > 0)
                 {
@@ -879,7 +824,6 @@ public class ADClass
 
                     fullName = firstName + " " + lastName;
                 }
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 UserNameColl.Add(fullName);
 
@@ -894,11 +838,9 @@ public class ADClass
         for (int i = 0; i < UserIDColl.Count; i++)
         {
             Users[i] = new UserInfo();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Users[i].UserID = UserIDColl[i].ToString();
             Users[i].FullName = UserNameColl[i].ToString();
- #pragma warning restore CS8602 // Dereference of a possibly null reference.
-       }
+        }
 
 
         return Users;
@@ -955,10 +897,7 @@ public class ADClass
                             UserPrincipal p = (UserPrincipal)itResults.Current;
 
                             UserPrincipalEx UserEx = UserPrincipalEx.FindByIdentity(ctx, IdentityType.SamAccountName, p.SamAccountName);
-
-#pragma warning disable CS8629 // Nullable value type may be null.
                             if (!userIDMap.ContainsKey(p.SamAccountName) && (bool)UserEx.Enabled)
-#pragma warning restore CS8629 // Nullable value type may be null.
                             {
                                 userIDMap[p.SamAccountName] = j++;
                                 if (p.DisplayName != null && p.DisplayName != "")
@@ -1001,12 +940,8 @@ public class ADClass
         {
             Users[u] = new UserInfo();
             Users[u].UserID = userID.Key.ToString();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8605 // Unboxing a possibly null value.
             Users[u].FullName = UserNameColl[(int)userID.Value].ToString();
-#pragma warning restore CS8605 // Unboxing a possibly null value.
             Users[u].Description = DescriptionColl[(int)userID.Value].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             u++;
         }
 
@@ -1048,10 +983,7 @@ public class ADClass
 
             var itResults = results.GetEnumerator();
 
-
-
             int j = 0;
-
 
             using (itResults)
             {
@@ -1100,14 +1032,8 @@ public class ADClass
             {
                 Groups[g] = new GroupInfo();
                 Groups[g].GroupName = groupName.Key.ToString();
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8605 // Unboxing a possibly null value.
                 if (GroupDescriptionColl[(int)groupName.Value].ToString() != "NONE")
-#pragma warning restore CS8605 // Unboxing a possibly null value.
                     Groups[g].GroupDescription = GroupDescriptionColl[(int)groupName.Value].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
                 g++;
             }
             return Groups;
@@ -1141,10 +1067,7 @@ public class ADClass
         DC = new string[DC_Coll.Count];
 
         for (int i = 0; i < DC_Coll.Count; i++)
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             DC[i] = DC_Coll[i].ToString();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
         return DC;
     }
 
@@ -1162,11 +1085,7 @@ public class ADClass
         PrincipalContext pCtx = new(ContextType.Domain, Domain);
 
         UserPrincipalEx UserEx = UserPrincipalEx.FindByIdentity(pCtx, IdentityType.SamAccountName, UserID);
-#pragma warning disable CS8629 // Nullable value type may be null.
         if (UserEx == null || !(bool)UserEx.Enabled) return false;
-#pragma warning restore CS8629 // Nullable value type may be null.
-
-
         GroupPrincipal gp = new(pCtx);
         gp.Name = Group;
 
