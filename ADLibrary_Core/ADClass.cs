@@ -760,6 +760,8 @@ public class ADClass
     {
         StringCollection UserIDColl = new();
         StringCollection UserNameColl = new();
+        StringCollection DescriptionColl = new();
+
         SearchResultCollection resultsColl;
         UserInfo[] Users;
 
@@ -791,6 +793,7 @@ public class ADClass
             ds.PropertiesToLoad.Add("givenname");
             ds.PropertiesToLoad.Add("sn");
             ds.PropertiesToLoad.Add("displayName");
+            ds.PropertiesToLoad.Add("description");
 
             ds.Sort = new SortOption("samaccountname", SortDirection.Ascending);
 
@@ -827,6 +830,13 @@ public class ADClass
 
                 UserNameColl.Add(fullName);
 
+                if (result.Properties["description"].Count > 0)
+                {
+                    DescriptionColl.Add(result.Properties["description"][0].ToString());
+                }
+                else
+                    DescriptionColl.Add("");
+
             }
 
 
@@ -840,6 +850,7 @@ public class ADClass
             Users[i] = new UserInfo();
             Users[i].UserID = UserIDColl[i].ToString();
             Users[i].FullName = UserNameColl[i].ToString();
+            Users[i].Description = DescriptionColl[i].ToString();
         }
 
 
