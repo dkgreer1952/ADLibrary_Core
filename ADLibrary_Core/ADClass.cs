@@ -1,9 +1,9 @@
-﻿using System.DirectoryServices;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
-using System.Collections.Specialized;
-using System.Collections;
 
 namespace ADLibrary_Core;
 
@@ -75,9 +75,8 @@ public class ADClass
             }
         }
 
-        public class UserPrincipalExSearchFilter : AdvancedFilters
+        public class UserPrincipalExSearchFilter(Principal p) : AdvancedFilters(p)
         {
-            public UserPrincipalExSearchFilter(Principal p) : base(p) { }
             public void LogonCount(int value, System.DirectoryServices.AccountManagement.MatchType mt)
             {
                 this.AdvancedFilterSet("logonCount", value, typeof(int), mt);
@@ -266,8 +265,8 @@ public class ADClass
 
     public static GroupInfo[] GetMatchingGroups(string GroupFilter, string Domain = "")
     {
-        StringCollection GroupNameColl = new();
-        StringCollection GroupDescriptionColl = new ();
+        StringCollection GroupNameColl = [];
+        StringCollection GroupDescriptionColl = [];
         SearchResultCollection resultsColl;
         GroupInfo[] Groups;
 
@@ -329,9 +328,9 @@ public class ADClass
     public static UserInfo[] GetDomainUsers(string Domain = "")
     {
 
-        StringCollection UserIDColl = new();
-        StringCollection UserNameColl = new();
-        StringCollection DescriptionColl = new();
+        StringCollection UserIDColl = [];
+        StringCollection UserNameColl = [];
+        StringCollection DescriptionColl = [];
         SearchResultCollection resultsColl;
         UserInfo[] Users;
 
@@ -414,11 +413,13 @@ public class ADClass
         return Users;
     }
 
+    private static readonly string[] propertyNames = ["tokenGroupsGlobalAndUniversal"];
+
     public static GroupInfo[] GetGroupsForUser(string UserID, string Domain = "")
     {
-        StringCollection GroupDescriptionColl = new();
+        StringCollection GroupDescriptionColl = [];
         GroupInfo[] Groups;
-        SortedList groupNameMap = new();
+        SortedList groupNameMap = [];
 
         //Default domain if not supplied
         if (Domain == null || Domain.Trim() == "")
@@ -431,7 +432,7 @@ public class ADClass
         if ((bool)UserEx.Enabled)
         {
             DirectoryEntry domainConnection = new(); // Use this to query the default domain
-                                                                    //DirectoryEntry domainConnection = new DirectoryEntry("LDAP://example.com", "username", "password"); // Use this to query a remote domain
+                                                     //DirectoryEntry domainConnection = new DirectoryEntry("LDAP://example.com", "username", "password"); // Use this to query a remote domain
 
             DirectorySearcher samSearcher = new();
 
@@ -442,7 +443,7 @@ public class ADClass
             if (samResult != null)
             {
                 DirectoryEntry theUser = samResult.GetDirectoryEntry();
-                theUser.RefreshCache(new string[] { "tokenGroupsGlobalAndUniversal" });
+                theUser.RefreshCache(propertyNames);
 
                 int groupIdx = 0;
 
@@ -555,8 +556,8 @@ public class ADClass
 
     public static UserInfo[] GetDisabledUsers(string Domain = "")
     {
-        StringCollection UserIDColl = new();
-        StringCollection UserNameColl = new();
+        StringCollection UserIDColl = [];
+        StringCollection UserNameColl = [];
         SearchResultCollection resultsColl;
         UserInfo[] Users;
 
@@ -640,8 +641,8 @@ public class ADClass
 
     public static UserInfo[] GetLockedUsers(string Domain = "")
     {
-        StringCollection UserIDColl = new();
-        StringCollection UserNameColl = new();
+        StringCollection UserIDColl = [];
+        StringCollection UserNameColl = [];
         SearchResultCollection resultsColl;
         UserInfo[] Users;
 
@@ -758,15 +759,15 @@ public class ADClass
 
     public static UserInfo[] GetMatchingUsers(string LastName = "", string FirstName = "", string Domain = "")
     {
-        StringCollection UserIDColl = new();
-        StringCollection UserNameColl = new();
-        StringCollection DescriptionColl = new();
+        StringCollection UserIDColl = [];
+        StringCollection UserNameColl = [];
+        StringCollection DescriptionColl = [];
 
         SearchResultCollection resultsColl;
         UserInfo[] Users;
 
-        if (LastName == null) LastName = "";
-        if (FirstName == null) FirstName = "";
+        LastName ??= "";
+        FirstName ??= "";
 
         if (!FirstName.Contains('*'))
             FirstName += "*";
@@ -861,9 +862,9 @@ public class ADClass
     public static UserInfo[] GetGroupMembers(string GroupName, string Domain = "")
     {
 
-        SortedList userIDMap = new();
-        StringCollection UserNameColl = new();
-        StringCollection DescriptionColl = new();
+        SortedList userIDMap = [];
+        StringCollection UserNameColl = [];
+        StringCollection DescriptionColl = [];
         UserInfo[] Users;
 
         if (GroupName == null || GroupName.Trim() == "")
@@ -964,8 +965,8 @@ public class ADClass
     {
 
         GroupInfo[] Groups;
-        SortedList groupNameMap = new();
-        StringCollection GroupDescriptionColl = new();
+        SortedList groupNameMap = [];
+        StringCollection GroupDescriptionColl = [];
 
         if (GroupName == null || GroupName.Trim() == "")
             return null;
@@ -1004,7 +1005,7 @@ public class ADClass
                     {
                         Principal p = (Principal)itResults.Current;
 
-                        if (p.StructuralObjectClass.ToLower() == "group") //Return only subgroups
+                        if (p.StructuralObjectClass.Equals("group", StringComparison.CurrentCultureIgnoreCase)) //Return only subgroups
                         {
                             GroupPrincipal gp = (GroupPrincipal)p;
                             if (gp.GroupScope != GroupScope.Local)
@@ -1051,7 +1052,7 @@ public class ADClass
         }
         catch (MultipleMatchesException)
         {
-            Groups = Array.Empty<GroupInfo>();
+            Groups = [];
             return Groups;
         }
 
@@ -1062,7 +1063,7 @@ public class ADClass
     {
         string[] DC;
 
-        StringCollection DC_Coll = new();
+        StringCollection DC_Coll = [];
 
         //Default domain if not supplied
         if (DomainName == null || DomainName.Trim() == "")
